@@ -15,9 +15,8 @@ bot.onText(/\/echo (.+)/, function (msg, match) {
 // Any kind of message
 bot.on('message', function (msg) {
   var chatId = msg.chat.id;
-  console.log(chatId);
   // photo can be: a file path, a stream or a Telegram file_id
   //var photo = 'cats.png';
-  bot.sendMessage(chatId, 'hi');
+  bot.sendMessage(chatId, msg.text);
   //bot.sendPhoto(chatId, photo, {caption: 'Lovely kittens'});
 });
