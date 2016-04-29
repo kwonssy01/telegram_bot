@@ -1,6 +1,8 @@
 var TelegramBot = require('node-telegram-bot-api');
 const __CONFIG__ = require('./config');
 
+require('./dbconnection')();
+
 var token = __CONFIG__.token;
 // Setup polling way
 var bot = new TelegramBot(token, {polling: true});
@@ -13,15 +15,19 @@ bot.onText(/\/start/, function (msg) {
 	
 	var chatId = msg.chat.id;
 	var opts = {
-		force_reply: JSON.stringify({
-			force_reply: true
-		}),
+		// force_reply: JSON.stringify({
+		// 	force_reply: true
+		// }),
 		reply_markup: JSON.stringify({
 			keyboard: [
 				[newGagMsg],
 				[recommandGagMsg],
 				[todayGagMsg]
-			]
+			],
+			// ReplyKeyboardMarkup: true
+			one_time_keyboard: true,
+			resize_keyboard: true,
+			force_reply: true
 		})
 	};
 	var genderMessage = '안녕하세요?';
@@ -40,7 +46,7 @@ bot.onText(new RegExp(todayGagMsg), function (msg) {
 	
 });
 
-bot.onText(/Good/, function (msg) {
+bot.onText(/\uD83D\uDC4D/, function (msg) {
 	// console.log(msg);
 	
 	newGag(msg);
@@ -62,7 +68,7 @@ function newGag(msg) {
 		}),
 		reply_markup: JSON.stringify({
 			keyboard: [
-				['Good', 'Die'],
+				['\uD83D\uDC4D', 'Die'],
 				['Copy', 'Keep']
 			]
 		})
