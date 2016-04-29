@@ -77,6 +77,13 @@ const selectAnswersQuery = ("SELECT qId, ansId, seq, content, score FROM Answer 
 const insertUserAnswerQuery = ("INSERT INTO UserAnswer(chatId, starId, qId, ansId) VALUES(?, ?, ?, (SELECT ansId FROM Answer WHERE qId = ? AND content = ?)) ;");
 
 /**
+ * UserAnswer insert
+ * input  : qId, content
+ * output : ansId
+ */
+const selectAnswerQuery = ("SELECT ansId FROM Answer WHERE qId = ? AND content = ?;");
+
+/**
  * UserAnswer delete
  * input  : chatId
  * output : none
@@ -213,49 +220,47 @@ bot.onText(/^[^\/]/, function (msg) {
 					console.error(err);
 	                throw err;
 	        	}
-	        	//다음 문제가 있을 때
-	        	if(rows.length > 0) {
-		        	var qId = rows[0].qId;
-		        	var content = rows[0].content;
-		        	
-		        	queryParams = [qId];
-		        	//대답들을 가져온다.
-		        	connection.query(selectAnswersQuery, queryParams, function(err, ansRows, fields) {
-		        		if(err) {
-		        			console.error(err);
-			                throw err;
-			        	}
-			        	var answers = [];
-			        	for(var i=0; i<ansRows.length; i++) {
-			        		answers.push(new Array());
-			        		answers[i].push(ansRows[i].content);
-			        	}
+	        	
+	        	var qId = rows[0].qId;
+	        	var content = rows[0].content;
+	        	
+	        	queryParams = [qId];
+	        	//대답들을 가져온다.
+	        	connection.query(selectAnswersQuery, queryParams, function(err, ansRows, fields) {
+	        		if(err) {
+	        			console.error(err);
+		                throw err;
+		        	}
+		        	var answers = [];
+		        	for(var i=0; i<ansRows.length; i++) {
+		        		answers.push(new Array());
+		        		answers[i].push(ansRows[i].content);
+		        	}
 
-			        	var photo = imagePath + qId + '.jpg';
-			        	var opts = {
-			        			caption: content,
-								 force_reply: JSON.stringify({
-									force_reply: true
-								}),
-								reply_markup: JSON.stringify({
-									keyboard: answers,
-									one_time_keyboard: true,
-									resize_keyboard: true
-								})
-							};
-						//bot.sendMessage(chatId, msg.text);
-						bot.sendPhoto(chatId, photo, opts).then(function (sended) {
-						    queryParams = [starId, qId, chatId];
-						    //User State 변경
-				        	connection.query(updateUserStateQuery, queryParams, function(err, rows, fields) {
-				        		if(err) {
-				        			console.error(err);
-					                throw err;
-					        	}
-					        });
-						});
-			        });
-	       		}
+		        	var photo = imagePath + qId + '.jpg';
+		        	var opts = {
+	        			caption: content,
+						 force_reply: JSON.stringify({
+							force_reply: true
+						}),
+						reply_markup: JSON.stringify({
+							keyboard: answers,
+							one_time_keyboard: true,
+							resize_keyboard: true
+						})
+					};		
+					//bot.sendMessage(chatId, msg.text);
+					bot.sendPhoto(chatId, photo, opts).then(function (sended) {
+					    queryParams = [starId, qId, chatId];
+					    //User State 변경
+			        	connection.query(updateUserStateQuery, queryParams, function(err, rows, fields) {
+			        		if(err) {
+			        			console.error(err);
+				                throw err;
+				        	}
+				        });
+					});
+		        });
 			});
 		});
 	}
@@ -283,7 +288,7 @@ bot.onText(/^[^\/]/, function (msg) {
 	        	var totalScore = 0;
 	        	var totalDetailMsg = '';
 	        	for(var i=0; i<rows.length; i++) {
-	        		totalDetailMsg += (i+1)+'번: ' + rows[i].score + '/' + rows[i].maxScore + '\r\n';
+	        		totalDetailMsg += (rows[i].seq)+'번: ' + rows[i].score + '/' + rows[i].maxScore + '\r\n';
 	        		totalScore += rows[i].score;
 	        	}
 	        	totalDetailMsg += '총점: ' + totalScore;
@@ -329,6 +334,12 @@ bot.onText(/^[^\/]/, function (msg) {
 		        		console.error(err);
 		                throw err;
 		        	}
+		        	
+		        	//잘못 입력 처리
+		        	if(rows.length == 0) {
+		        		return;
+		        	}
+
 		        	// console.log(rows);
 		        	starId = rows[0].starId;
 
@@ -357,16 +368,16 @@ bot.onText(/^[^\/]/, function (msg) {
 
 				        	var photo = imagePath + qId + '.jpg';
 				        	var opts = {
-				        			caption: content,
-									 force_reply: JSON.stringify({
-										force_reply: true
-									}),
-									reply_markup: JSON.stringify({
-										keyboard: answers,
-										one_time_keyboard: true,
-										resize_keyboard: true
-									})
-								};
+			        			caption: content,
+								 force_reply: JSON.stringify({
+									force_reply: true
+								}),
+								reply_markup: JSON.stringify({
+									keyboard: answers,
+									one_time_keyboard: true,
+									resize_keyboard: true
+								})
+							};
 							//bot.sendMessage(chatId, msg.text);
 							bot.sendPhoto(chatId, photo, opts).then(function (sended) {
 							    queryParams = [starId, qId, chatId];
@@ -384,66 +395,78 @@ bot.onText(/^[^\/]/, function (msg) {
 			}
 			//starId가 있다면..(진행중이라면)
 			else {
-
-				queryParams = [chatId, starId, qId, qId, msg.text];
-				//스코어를 UserAnswer 테이블에 기록한다.
-				connection.query(insertUserAnswerQuery, queryParams, function(err, rows, fields) {
+				queryParams = [qId, msg.text];
+				connection.query(selectAnswerQuery, queryParams, function(err, rows, fields) {
 					if(err) {
 						console.error(err);
 		                throw err;
 		        	}
-		        	// console.log('기록됨');
-		        	
-		        	queryParams = [starId, qId];
-			    	//다음문제를 가져온다.
-			    	connection.query(selectNextQuestionQuery, queryParams, function(err, rows, fields) {
+
+		        	//잘못 입력 방지
+		        	if(rows.length == 0) {
+		        		return;
+		        	}
+
+					queryParams = [chatId, starId, qId, qId, msg.text];
+					//스코어를 UserAnswer 테이블에 기록한다.
+					connection.query(insertUserAnswerQuery, queryParams, function(err, rows, fields) {
 						if(err) {
 							console.error(err);
 			                throw err;
 			        	}
-
-			        	var finalMsg;
-			        	//다음 문제가 있을 때
-			        	if(rows.length > 0) {
-			        		finalMsg = nextQuestionMsg;
-			        	}
-			        	//다음 문제가 없을 때
-			        	else {
-			        		finalMsg = totalMsg;
-			        	}
-
-			        	var opts = {
-							force_reply: JSON.stringify({
-								force_reply: true
-							}),
-							reply_markup: JSON.stringify({
-								keyboard: [[finalMsg]],
-								one_time_keyboard: true,
-								resize_keyboard: true
-							})	
-						};
-
-			        	queryParams = [qId];
-			        	connection.query(selectExplanationQuery, queryParams, function(err, rows, fields) {
-			        		if(err) {
-			        			console.error(err);
+			        	// console.log('기록됨');
+			        	
+			        	queryParams = [starId, qId];
+				    	//다음문제를 가져온다.
+				    	connection.query(selectNextQuestionQuery, queryParams, function(err, rows, fields) {
+							if(err) {
+								console.error(err);
 				                throw err;
 				        	}
 
-				        	var explanation;
-				        	var score;
-
-				        	for(var i=0; i<rows.length; i++) {
-				        		if(rows[i].content == msg.text) {
-				        			explanation = rows[i].explanation;
-				        			score = rows[i].score;
-				        			break;
-				        		}
+				        	var finalMsg;
+				        	//다음 문제가 있을 때
+				        	if(rows.length > 0) {
+				        		finalMsg = nextQuestionMsg;
 				        	}
-				        	var exp = score + '점.\r\n' + explanation;
-				        	bot.sendMessage(chatId, exp, opts);
-						});
-		        	});
+				        	//다음 문제가 없을 때
+				        	else {
+				        		finalMsg = totalMsg;
+				        	}
+
+				        	var opts = {
+								force_reply: JSON.stringify({
+									force_reply: true
+								}),
+								reply_markup: JSON.stringify({
+									keyboard: [[finalMsg]],
+									one_time_keyboard: true,
+									resize_keyboard: true
+								})	
+							};
+
+				        	queryParams = [qId];
+				        	connection.query(selectExplanationQuery, queryParams, function(err, rows, fields) {
+				        		if(err) {
+				        			console.error(err);
+					                throw err;
+					        	}
+
+					        	var explanation;
+					        	var score;
+
+					        	for(var i=0; i<rows.length; i++) {
+					        		if(rows[i].content == msg.text) {
+					        			explanation = rows[i].explanation;
+					        			score = rows[i].score;
+					        			break;
+					        		}
+					        	}
+					        	var exp = score + '점.\r\n' + explanation;
+					        	bot.sendMessage(chatId, exp, opts);
+							});
+			        	});
+					});
 				});
 			}
 		});
