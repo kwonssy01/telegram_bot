@@ -183,6 +183,7 @@ function tryAgain(chatId) {
 						}),
 					};
 					var genderMessage = '상대를 선택해주세요.';
+					bot.sendChatAction(chatId, 'typing');
 					bot.sendMessage(chatId, genderMessage, opts);
 				});
 	        });
@@ -250,6 +251,7 @@ bot.onText(/^[^\/]/, function (msg) {
 						})
 					};		
 					//bot.sendMessage(chatId, msg.text);
+					bot.sendChatAction(chatId, 'upload_photo');
 					bot.sendPhoto(chatId, photo, opts).then(function (sended) {
 					    queryParams = [starId, qId, chatId];
 					    //User State 변경
@@ -306,7 +308,7 @@ bot.onText(/^[^\/]/, function (msg) {
 					})
 					
 				};
-
+				bot.sendChatAction(chatId, 'typing');
 				bot.sendMessage(chatId, totalDetailMsg, opts);
         	});
 	    });
@@ -381,6 +383,7 @@ bot.onText(/^[^\/]/, function (msg) {
 								})
 							};
 							//bot.sendMessage(chatId, msg.text);
+							bot.sendChatAction(chatId, 'upload_photo');
 							bot.sendPhoto(chatId, photo, opts).then(function (sended) {
 							    queryParams = [starId, qId, chatId];
 							    //User State 변경
@@ -465,6 +468,7 @@ bot.onText(/^[^\/]/, function (msg) {
 					        		}
 					        	}
 					        	var exp = score + '점.\r\n' + explanation;
+					        	bot.sendChatAction(chatId, 'typing');
 					        	bot.sendMessage(chatId, exp, opts);
 							});
 			        	});
