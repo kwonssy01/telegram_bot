@@ -46,14 +46,14 @@ const updateUserStateQuery = ("UPDATE UserState SET starId = ?, qId = ? WHERE ch
  * input  : none
  * output : starId, name
  */
-const selectStarsQuery = ("SELECT starId, name FROM Star ORDER BY name limit 1");
+const selectStarsQuery = ("SELECT starId, name FROM Star WHERE useFlag = 1 ORDER BY name");
 
 /**
  * 스타 select
  * input  : name
  * output : starId, name
  */
-const selectStarQuery = ("SELECT starId, name FROM Star WHERE name = ? ");
+const selectStarQuery = ("SELECT starId, name FROM Star WHERE name = ? AND useFlag = 1");
 
 /**
  * next Question select
@@ -285,13 +285,15 @@ bot.onText(/^[^\/]/, function (msg) {
 	                throw err;
 	        	}
 	        	// console.log(rows);
+	        	var myScore = 0;
 	        	var totalScore = 0;
 	        	var totalDetailMsg = '';
 	        	for(var i=0; i<rows.length; i++) {
 	        		totalDetailMsg += (rows[i].seq)+'번: ' + rows[i].score + '/' + rows[i].maxScore + '\r\n';
-	        		totalScore += rows[i].score;
+	        		myScore += rows[i].score;
+	        		totalScore += rows[i].maxScore;
 	        	}
-	        	totalDetailMsg += '총점: ' + totalScore;
+	        	totalDetailMsg += '\r\n총점: ' + myScore + '/' + totalScore;
 
 	        	var opts = {
 					force_reply: JSON.stringify({
