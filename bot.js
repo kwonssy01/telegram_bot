@@ -106,14 +106,14 @@ const selectTotalScoreQuery = ("SELECT sum(score) as total FROM UserAnswer A, An
 
 /**
  * 토탈스코어 디테일 UserAnswer 
- * input  : chatId, starId, starId
+ * input  : chatId, starId, chatId, starId, starId
  * output : none
  */
-const selectTotalScoreDetailQuery = ("SELECT D.chatId, D.starId, D.qId, D.seq, D.score, E.maxScore 	\
-								FROM 															\
-								(SELECT A.chatId, A.starId, A.qId, B.seq, C.score FROM UserAnswer A, Question B, Answer C WHERE A.qId = B.qId AND A.ansId = C.ansId AND A.chatId = ? AND A.starId = ?) D, \
-								(SELECT A.qId, max(score) maxScore FROM Question A, Answer B WHERE A.qId = B.qId AND A.starId = ? GROUP BY A.qId) E \
-								WHERE D.qId = E.qId");
+const selectTotalScoreDetailQuery = ("SELECT D.chatId, D.starId, D.qId, D.seq, D.score, E.maxScore, D.try 	\
+									FROM 																	\
+									(SELECT A.chatId, A.starId, A.qId, B.seq, C.score, A.try FROM UserResult A, Question B, Answer C WHERE A.qId = B.qId AND A.ansId = C.ansId AND A.chatId = ? AND A.starId = ? AND A.try = (SELECT max(try) FROM UserResult WHERE chatId = ? AND starId = ?)) D, \
+									(SELECT A.qId, max(score) maxScore FROM Question A, Answer B WHERE A.qId = B.qId AND A.starId = ? GROUP BY A.qId) E \
+									WHERE D.qId = E.qId");
 
 
 /**
@@ -297,7 +297,7 @@ bot.onText(/^[^\/]/, function (msg) {
 			//UserResult 테이블로 결과를 옮겨준다.
 			queryParams = [chatId, starId, chatId, starId];
         	connection.query(moveResultQuery, queryParams, function(err, rows, fields) {
-				queryParams = [chatId, starId, starId];
+				queryParams = [chatId, starId, chatId, starId, starId];
 		    	//대답들을 가져온다.
 		    	connection.query(selectTotalScoreDetailQuery, queryParams, function(err, rows, fields) {
 		    		if(err) {
@@ -308,12 +308,15 @@ bot.onText(/^[^\/]/, function (msg) {
 		        	var myScore = 0;
 		        	var totalScore = 0;
 		        	var totalDetailMsg = '';
+		        	var tryNum;
 		        	for(var i=0; i<rows.length; i++) {
 		        		totalDetailMsg += (rows[i].seq)+'번: ' + rows[i].score + '/' + rows[i].maxScore + '\r\n';
 		        		myScore += rows[i].score;
 		        		totalScore += rows[i].maxScore;
+		        		tryNum = rows[i].try;
 		        	}
 		        	totalDetailMsg += '\r\n총점: ' + myScore + '/' + totalScore;
+		        	totalDetailMsg += '\r\n확인하기: http://ec2-52-79-192-8.ap-northeast-2.compute.amazonaws.com:3000/' + chatId + '/' + starId + '/' + tryNum;
 
 		        	var opts = {
 						force_reply: JSON.stringify({
