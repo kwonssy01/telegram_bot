@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" /> 
+<html>
+<!--<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, target-densitydpi=medium-dpi" />--> 
+<link rel="stylesheet" href="/stylesheets/reset.css" />
+<link rel="stylesheet" href="/stylesheets/normalize.css" />
+<link rel="stylesheet" href="/stylesheets/fonts.css" />
+	<head>
+		<title><%= title %></title>
+		<!--<link rel='stylesheet' href='/stylesheets/style.css' /> -->
+		<script src="http://code.jquery.com/jquery-1.6.2.min.js"></script>		
+		
+	</head>
+	<body>
+		<div style="width:100% margin:50px 50px">
+			<table>
+
+<%
+	for(var i=0; i<locations.length; i++) {
+%>
+				<ul>
+					<form name="updateLocationForm" action="/updateLocation" method="post">
+						<%=locations[i].sensorId%>  
+						<input name="sensorId" type="hidden" value="<%=locations[i].sensorId%>">
+						<input name="loc" type="text" value='<%=locations[i].location%>'>
+						<input type="submit" value="저장">
+					</form>
+				</ul>
+<%		
+	}
+%>
+			</table>
+		</div>
+	</body>
+</html>
