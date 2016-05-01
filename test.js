@@ -56,11 +56,18 @@ const selectStarsQuery = ("SELECT starId, name FROM Star WHERE useFlag = 1 ORDER
 const selectStarQuery = ("SELECT starId, name FROM Star WHERE name = ? AND useFlag = 1");
 
 /**
- * next Question select
- * input  : starId
+ * first Question select
+ * input  : starId, qId
  * output : qId, starId, seq, content
  */
-const selectNextQuestionQuery = ("SELECT qId, starId, seq, content FROM Question WHERE starId = ? and seq > ? ORDER BY seq limit 1");
+const selectFirstQuestionQuery = ("SELECT qId, starId, seq, content FROM Question WHERE starId = ? ORDER BY seq limit 1");
+
+/**
+ * next Question select
+ * input  : starId, qId
+ * output : qId, starId, seq, content
+ */
+const selectNextQuestionQuery = ("SELECT qId, starId, seq, content FROM Question WHERE starId = ? and seq > (SELECT seq FROM Question WHERE qId = ?) ORDER BY seq limit 1");
 
 /**
  * 대답들 select
@@ -347,9 +354,9 @@ bot.onText(/^[^\/]/, function (msg) {
 		        	// console.log(rows);
 		        	starId = rows[0].starId;
 
-		        	queryParams = [starId, ''];
+		        	queryParams = [starId];
 		        	//다음문제를 가져온다.
-		        	connection.query(selectNextQuestionQuery, queryParams, function(err, rows, fields) {
+		        	connection.query(selectFirstQuestionQuery, queryParams, function(err, rows, fields) {
 						if(err) {
 							console.error(err);
 			                throw err;
@@ -467,7 +474,10 @@ bot.onText(/^[^\/]/, function (msg) {
 					        			break;
 					        		}
 					        	}
-					        	var exp = score + '점.\r\n' + explanation;
+					        	var exp = explanation + '\r\n\r\n';
+					        	if(score >= 0)
+					        		exp += '+';
+					        	exp += score + '점';
 					        	bot.sendChatAction(chatId, 'typing');
 					        	bot.sendMessage(chatId, exp, opts);
 							});
