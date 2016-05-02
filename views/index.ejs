@@ -12,22 +12,53 @@
 		<script type="text/javascript">
 			
 			$(document).ready(function(){
-				
+				$("div[name=imageDiv]").children().each(function(e){
+					$(this).load(function(){ //이미지를 다 불러온후 확인하기 위해
+       					var divWidth = $(this).parent().width();
+						var divHeight = divWidth*0.75;
+						var width = this.naturalWidth;
+						var height = this.naturalHeight;
+						
+						var widthMultiple = (width*1.0) / (divWidth*1.0);
+						var heightMultiple = (height*1.0) / (divHeight*1.0);
+						
+						if(widthMultiple > heightMultiple) {
+							$(this).css('width', divWidth);
+							$(this).parent().css('padding-bottom',height/width*100+'%');
+					
+						}else {
+							$(this).css('height', divHeight);
+						}
+       				});
+					
+				});
 			});
 
 		</script>
 	</head>
+<%
+	var score = total[0].score;
+	var maxScore = total[0].maxScore;
+%>			
 	<body>
 		<div style="width:100%">
 			<div style="/*max-width:600px;*/ background-color:#F17AA5; text-align:center; height: 77px; vertical-align:baseline; padding: 0 20px; margin:0 auto;">
 				<div style="width:100%; height:25px; padding:26px 0;">
 					<a href="/" style="background-image:url(/images/komera.png); width:102px; height:28px; background-size:102px 28px; display:inline-block; "></a>
-					<!--<div style="position:relative; width:100px; margi-right:-20px; float:right;">
-						<span>썸타여</span>
-					</div>-->
+					<div style="position:relative; /*width:100px;*/ margi-right:-20px; float:right;">
+						<span>썸타</span>
+					</div>
 				</div>
 			</div>
 			<div id="post_container" style="max-width:600px; margin:0 auto;"> <!-- posts container -->
+
+				<div name="totalDiv" style="margin-bottom:10px;"> <!-- post -->
+					<div style="padding: 20px 20px; height: 20px; vertical-align:middle;"> <!-- post header -->
+						<div style="width:100%; position:relative; float:left; margin-left:10px;">
+							<span style="font-size:20px; color: #125587; font-weight:600;">당신의 점수는 총 <%= maxScore%>점 중 <%= score%>점! </span>
+						</div>
+					</div>
+				</div>
 <%
 	var Qseq = 0;
 	var Aseq = 0;
@@ -43,20 +74,12 @@
 %>
 				<div name="postDiv" style="/*border-top: 1px solid #EDEEEE; border-bottom: 1px solid #EDEEEE; background-color:#FAFAFA; box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);*/ /*border-radius: 15px;*/ margin-bottom:40px;"> <!-- post -->
 					<div style="padding: 20px 20px; height: 20px; vertical-align:middle;"> <!-- post header -->
-						<!--
-						<img src="/images/pin.png" style="width:30px; height:30px; margin-top:-7px; float:left; border-radius: 50%; border: .5px solid #125587; box-sizing: border-box;"/>
-						-->
 						<div style="width:40%; position:relative; float:left; margin-left:10px;">
 							<span style="font-size:14px; color: #125587; font-weight:600;"><%= Qseq%>번</span>
 						</div>
-						<!--
-						<div style="position:relative; float:right; margin-right:0px;">
-							<span style="color:#A6A8AB; font-size:14px;">몇시간 전</span>
-						</div>
-						-->
 					</div>
-					<div style="text-align:center; background-color:#EDEDED; position: relative; width: 100%; height: 0; padding-bottom: 75%; overflow:hidden;">
-						<img src="/images/<%=result.qId%>.jpg" alt="이미지" style="width:100%;">
+					<div name="imageDiv" style="text-align:center; background-color:#EDEDED; position: relative; width: 100%; height: 0; padding-bottom: 75%; overflow:hidden;">
+						<img src="/images/<%=result.qId%>.jpg" alt="이미지" style="">
 					</div>
 
 					<div name="commentDiv" style="padding: 10px 20px 15px 20px;"> <!-- comment -->

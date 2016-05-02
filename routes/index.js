@@ -24,6 +24,18 @@ const selectResultQuery = ("SELECT Question.qId, Question.content as question, A
 							WHERE UserResult.chatId = ? AND UserResult.starId = ? AND UserResult.try = ?		 																								\
 							ORDER BY Question.seq, Answer.seq;");
 
+/**
+ * 토탈스코어 디테일 UserAnswer 
+ * input  : chatId, starId, try
+ * output : score, maxScore
+ */
+const selectTotalScoreQuery = ("SELECT sum(score) as score, sum(maxScore) as maxScore \
+                                FROM UserResult INNER JOIN Answer INNER JOIN (SELECT qId, max(score) as maxScore FROM Answer GROUP BY qId) A \
+                                ON UserResult.ansId = Answer.ansId AND UserResult.qId = A.qId \
+                                WHERE UserResult.chatId = ? AND UserResult.starId = ? AND UserResult.try = ?");
+
+var queryParams;
+
 //index.ejs 홈
 router.get(homeURL, home);
 function home(req, res, next) {
@@ -36,14 +48,22 @@ function home(req, res, next) {
     var data = {};
     data['title'] = '썸타';
     
-    var queryParams = [chatId, starId, tryNum];
-    connection.query(selectResultQuery, queryParams, function(err, rows, fields) {
+    queryParams = [chatId, starId, tryNum];
+    connection.query(selectTotalScoreQuery, queryParams, function(err, totalRows, fields) {
         if(err) {
             throw err;
         }
-        data['results'] = rows;
-        // res.send(rows);
-    	res.render('index', data);
+        data['total'] = totalRows;
+
+        queryParams = [chatId, starId, tryNum];
+        connection.query(selectResultQuery, queryParams, function(err, rows, fields) {
+            if(err) {
+                throw err;
+            }
+            data['results'] = rows;
+            // res.send(rows);
+        	res.render('index', data);
+        });
     });
 
 
