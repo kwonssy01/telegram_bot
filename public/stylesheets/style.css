@@ -1,28 +1,25 @@
 body {
   padding: 0px;
   font: 20px "Lucida Grande", Helvetica, Arial, sans-serif;
-  background-color: #2F3037;
 }
 
 a {
   color: #00B7FF;
 }
 
-/*.question {
-	font-size:14px; 
-	margin-top:5px; 
-	margin-bottom:10px;
-}*/
-
 div.topBanner {
 	/*max-width:600px;*/
 	/*background:linear-gradient(to bottom right, #F83A8F, #FD673D);*/
-	background-color:#F83A8F;
+	/*background-color:#F83A8F;*/
+	background-color: #333333;
 	text-align:center; 
-	height: 77px; 
+	width:100%;
+	height: 40px; 
 	vertical-align:baseline; 
-	padding: 0 20px; 
+	padding: 0 0px; 
 	margin:0 auto;
+	position: fixed;
+	z-index: 9999;
 }
 
 div.totalDiv {
@@ -30,8 +27,11 @@ div.totalDiv {
 }
 
 div.post_container {
+	/*background-color:#454545;*/
+	background-color: #F4F4F4;
 	max-width:600px; 
 	margin:0 auto;
+	padding-top: 40px;
 }
 
 article.postDiv {
@@ -53,7 +53,10 @@ div.imageDiv {
 	text-align:center; 
 	/*background-color:#EDEDED; */
 	/*background-color:gray;*/
-	background-color: #2A2B27;
+	/*background-color: #2A2B27;*/
+	/*background-color: #404040;*/
+	/*background-color: #BBBBBB;*/
+	background-color: white;
 	position: relative; 
 	width: 100%; 
 	height: 0; 
@@ -61,9 +64,19 @@ div.imageDiv {
 	overflow:hidden;
 }
 
-footer.footer {
+div.footer {
+	border-top: solid 1px #E8E8E8;
+	background-color: #FFFFFF;
+	color:#999;
 	text-align: center;
 	text-transform: uppercase;
+}
+
+div.footer-inner {
+	margin: 0 auto;
+    padding: 30px 30px 20px 30px;
+    font-size: 13px;
+    color: #999;
 }
 
 p.question {
@@ -71,34 +84,56 @@ p.question {
 }
 
 span.red1 {
-	color: #EE4E51;
-	font-size: 20px;
+	/*color: #EE4E51;*/
+	color:#F83A8F;
+	font-size: 17px;
 }
 
 span.red2 {
-	color: #EE4E51;
-	font-size: 17px;
+	/*color: #EE4E51;*/
+	color:#F83A8F;
+	font-size: 14px;
 }
 
 span.red3 {
-	color: #EE4E51;
-	font-size: 14px;
+	/*color: #EE4E51;*/
+	color:#F83A8F;
+	font-size: 11px;
 }
 
 span.white1 {
-	color: white;
-	font-size: 20px;
-}
-
-span.white2 {
-	color: white;
+	color: #444;
 	font-size: 17px;
 }
 
-span.white3 {
-	color: white;
+span.white2 {
+	color: #444;
 	font-size: 14px;
 }
 
+span.white3 {
+	color: #444;
+	font-size: 11px;
+}
+
+span.indent5 {
+	margin-left: 5px;
+}
+
+span.indent10 {
+	margin-left: 10px;
+}
+
+span.indent20 {
+	margin-left: 20px;
+}
+
+li.answer {
+	/*margin-bottom: 5px;*/
+}
+
+li.explanation {
+	margin-bottom: 5px;
+}
 
 

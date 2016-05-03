@@ -42,23 +42,22 @@
 	var maxScore = total[0].maxScore;
 %>			
 	<body>
-		<div style="width:100%">
-			<div class="topBanner">
-				<div style="width:100%; height:25px; padding:26px 0;">
-					<a href="/" style="background-image:url(/images/komera.png); width:102px; height:28px; background-size:102px 28px; display:inline-block; "></a>
-					<!-- <div style="position:relative; /*width:100px;*/ margi-right:-20px; float:right;">
-						<span>썸타</span>
-					</div> -->
-				</div>
+		<div class="topBanner">
+			<div style="width:100%; height:25px; padding:5px 0;">
+				<a href="/" style="background-image:url(/images/someta.png); width:102px; height:28px; background-size:102px 28px; display:inline-block;" onclick="return false;"></a>
+				<!-- <div style="position:relative; /*width:100px;*/ margi-right:-20px; float:right;">
+					<span>썸타</span>
+				</div> -->
 			</div>
-			<div class="post_container"> <!-- posts container -->
-				<div class="totalDiv"> <!-- post -->
-					<div style="padding: 20px 20px; height: 20px; vertical-align:middle;"> <!-- post header -->
-						<div style="width:100%; position:relative; float:left; margin-left:10px;">
-							<span class="white1">당신의 점수는 총 <%= maxScore%>점 중 <%= score%>점! </span>
-						</div>
+		</div>
+		<div class="post_container"> <!-- posts container -->
+			<div class="totalDiv"> <!-- post -->
+				<div style="padding: 20px 20px; height: 20px; vertical-align:middle;"> <!-- post header -->
+					<div style="width:100%; position:relative; float:left; margin-left:10px;">
+						<span class="white2">당신의 점수는 총 <%= maxScore%>점 중 <%= score%>점! </span>
 					</div>
 				</div>
+			</div>
 <%
 	var Qseq = 0;
 	var Aseq = 0;
@@ -66,34 +65,40 @@
 	for(var i=0; i<results.length; i++)
 	{
 		var result = results[i];
+
+		// 점수가 0 이상일 때 + 기호 붙여주기
+		if(result.score >= 0) {
+			result.score = '+' + result.score;
+		}
+
 		if(qId != result.qId) 
 		{
 			Qseq += 1;
 			Aseq = 0;
 			qId = result.qId;
 %>
-				<article class="postDiv"> <!-- post -->
-					<!-- post header -->
-					<!-- 
-					<header class="postHeader"> 
-						<div style="/*width:100%*/; position:relative; float:left; margin-left:10px; margin-bottom: 5px;">
-							<span class="white1"><%= Qseq%>번</span>
-						</div>
-					</header> 
-					-->
-					<div class="imageDiv">
-						<img src="/images/<%=result.qId%>.jpg" alt="이미지" style="">
+			<article class="postDiv"> <!-- post -->
+				<!-- post header -->
+				<!-- 
+				<header class="postHeader"> 
+					<div style="/*width:100%*/; position:relative; float:left; margin-left:10px; margin-bottom: 5px;">
+						<span class="white1"><%= Qseq%>번</span>
 					</div>
+				</header> 
+				-->
+				<div class="imageDiv">
+					<img src="/images/<%=result.qId%>.jpg" alt="이미지" style="">
+				</div>
 
-					<!-- question -->
-					<div class="questionDiv" style="padding: 10px 20px 15px 20px;"> 
-						<section>
-							<div style="margin-top:5px; margin-bottom:10px;">
-								<span class="red2">Q. </span>
-								<span class="white2"><%= result.question %></span>
-							</div>
-						</section>
-						<ul>
+				<!-- question -->
+				<div class="questionDiv" style="padding: 10px 20px 15px 20px;"> 
+					<section>
+						<div style="margin-top:5px; margin-bottom:10px;">
+							<span class="red2">Q. </span>
+							<span class="white2"><%= result.question %></span>
+						</div>
+					</section>
+					<ul>
 
 <%
 		}
@@ -101,34 +106,34 @@
 		if(result.selected == 1)
 		{
 %>
-							<li>
-								<span class="red3"><%= Aseq %>. <%= result.answer %></span>
-							</li>
+						<li class="answer">
+							<span class="white3"><%= Aseq %>. </span><span class="red3"><%= result.answer %></span>
+						</li>
 <%
 		}
 		else
 		{
 %>					
-							<li>
-								<span class="white3"><%= Aseq %>. <%= result.answer %></span>
+						<li class="answer">
+							<span class="white3"><%= Aseq %>. <%= result.answer %></span>
+						</li>
 <%
 		}
 %>
-							<li>
-								<span class="white3">&nbsp;&nbsp;&nbsp;&nbsp;<%= result.score %>, <%= result.explanation %></span>
-							</li>
+						<li class="explanation">
+							<span class="white3"><%= result.score %>점, <%= result.explanation %></span>
+						</li>
 <%
 		if(i+1 == results.length || qId != results[i+1].qId) 
 		{
 %>
-					</div>
-				</article>			
+					</ul>
+				</div>
+			</article>			
 <%
 		}
 	}
 %>
-					
-			</div>
 			<!--
 			<div style="max-width:600px; text-align:center; margin-bottom:20px;">
 				<a id="more" href="#" style="width:80%; text-decoration: none;border-color: #4090db; border-radius: 3px; border-style: solid; border-width: 1px; color: #4090db; font-size: 14px; line-height: 34px; margin: 20px 20px 0; padding: 0; display:inline-block; font-weight:600;">더 불러오기..</a>
@@ -139,9 +144,14 @@
 				<span style="font-size: 14px; line-height: 34px; margin: 20px 20px 0; padding: 0; display:inline-block; font-weight:600;">더이상 게시물 없음.</span>
 			</div>
 			-->
-			<footer class="footer">
-				<span style="color: #4b4f54;">© 2016 디비조</span>
-			</footer>
+			<div class="footer">
+				<div class="footer-inner">
+					<div>
+						<a href="/" style="background-image:url(/images/someta_grey.png); width:102px; height:28px; background-size:102px 28px; display:inline-block;" onclick="return false;"></a>
+					</div>
+					<!-- <span style="color: #4b4f54;">© 2016 디비조</span> -->
+				</div>
+			</div>
 		</div>
 	</body>
 </html>
